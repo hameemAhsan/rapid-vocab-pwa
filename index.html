@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101010" />
+  <meta name="description" content="A fast offline PWA for learning vocabulary with English meaning, Bangla meaning, sentence, and rating-based repetition." />
+  <title>Rapid Vocab</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="appShell">
+    <header class="topbar">
+      <button class="brand" data-nav="home" aria-label="Go to home">
+        <span class="brand-mark">RV</span>
+        <span>
+          <strong>Rapid Vocab</strong>
+          <small>14-day word sprint</small>
+        </span>
+      </button>
+      <button id="installBtn" class="ghost hidden" type="button">Install</button>
+    </header>
+
+    <main>
+      <section id="homeView" class="view active" aria-labelledby="homeTitle">
+        <div class="hero-card">
+          <p class="eyebrow">Local-first PWA</p>
+          <h1 id="homeTitle">Learn fast. Review faster.</h1>
+          <p class="muted">Upload words once. They stay on this device and mix into your review queue.</p>
+          <button id="startReviewBtn" class="primary big" type="button">Start Review</button>
+        </div>
+
+        <div class="stats-grid" id="statsGrid" aria-live="polite"></div>
+
+        <section class="panel compact-settings">
+          <div>
+            <h2>Daily new-word target</h2>
+            <p class="muted">For 5000 words in 14 days, use around 360 new words/day.</p>
+          </div>
+          <label class="number-input">
+            <span>New/day</span>
+            <input id="dailyTargetInput" type="number" inputmode="numeric" min="1" max="1000" step="1" />
+          </label>
+        </section>
+
+        <section class="panel">
+          <h2>Today’s flow</h2>
+          <div class="flow-list">
+            <div><span>1</span> Due reviews first</div>
+            <div><span>2</span> Then today’s new words</div>
+            <div><span>3</span> Again cards return inside the session</div>
+          </div>
+        </section>
+      </section>
+
+      <section id="reviewView" class="view" aria-labelledby="reviewTitle">
+        <div class="review-topline">
+          <button class="ghost" data-nav="home" type="button">← Home</button>
+          <div id="reviewProgress" class="pill">0 / 0</div>
+        </div>
+
+        <article id="reviewCard" class="review-card" aria-live="polite">
+          <p class="eyebrow" id="reviewLabel">Word</p>
+          <h1 id="questionWord">No cards due</h1>
+
+          <div id="answerBlock" class="answer hidden">
+            <div>
+              <h3>English</h3>
+              <p id="englishMeaning"></p>
+            </div>
+            <div>
+              <h3>Bangla</h3>
+              <p id="banglaMeaning" class="bangla"></p>
+            </div>
+            <div>
+              <h3>Sentence</h3>
+              <p id="sentenceText"></p>
+            </div>
+          </div>
+
+          <button id="showAnswerBtn" class="primary big" type="button">Show Answer</button>
+
+          <div id="ratingBar" class="rating-bar hidden" aria-label="Rate your memory">
+            <button data-rating="again" class="rate again" type="button"><strong>Again</strong><small>same session</small></button>
+            <button data-rating="hard" class="rate hard" type="button"><strong>Hard</strong><small>tomorrow</small></button>
+            <button data-rating="good" class="rate good" type="button"><strong>Good</strong><small>later</small></button>
+            <button data-rating="easy" class="rate easy" type="button"><strong>Easy</strong><small>much later</small></button>
+          </div>
+        </article>
+
+        <section id="sessionDone" class="panel hidden"></section>
+      </section>
+
+      <section id="uploadView" class="view" aria-labelledby="uploadTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Upload</p>
+            <h1 id="uploadTitle">Add words locally</h1>
+          </div>
+          <button class="ghost" data-nav="home" type="button">← Home</button>
+        </div>
+
+        <section class="panel">
+          <h2>CSV format</h2>
+          <p class="muted">Use these headers. Bangla text is supported.</p>
+          <pre class="code-sample">word,englishMeaning,banglaMeaning,sentence
+relapse,to fall back into a bad condition,পুনরায় খারাপ অবস্থায় ফিরে যাওয়া,After improving for weeks he had a relapse.</pre>
+          <label class="file-picker">
+            <input id="csvFileInput" type="file" accept=".csv,text/csv" />
+            <span>Choose CSV file</span>
+          </label>
+          <div id="uploadStatus" class="upload-status muted"></div>
+        </section>
+
+        <section id="previewPanel" class="panel hidden">
+          <div class="split-head">
+            <div>
+              <h2>Preview</h2>
+              <p id="previewSummary" class="muted"></p>
+            </div>
+            <button id="importBtn" class="primary" type="button">Import Words</button>
+          </div>
+          <div id="previewList" class="preview-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="split-head">
+            <div>
+              <h2>Backup</h2>
+              <p class="muted">Export or restore the local database on this device.</p>
+            </div>
+          </div>
+          <div class="backup-actions">
+            <button id="exportJsonBtn" class="ghost" type="button">Export Backup</button>
+            <label class="ghost file-inline">
+              Import Backup
+              <input id="jsonImportInput" type="file" accept=".json,application/json" />
+            </label>
+          </div>
+        </section>
+      </section>
+
+      <section id="wordlistView" class="view" aria-labelledby="wordlistTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Wordlist</p>
+            <h1 id="wordlistTitle">All words</h1>
+          </div>
+          <button class="ghost" data-nav="home" type="button">← Home</button>
+        </div>
+
+        <section class="panel controls-panel">
+          <input id="wordSearchInput" class="search" type="search" placeholder="Search word, meaning, Bangla, sentence..." />
+          <select id="wordFilterSelect" class="select" aria-label="Filter words">
+            <option value="all">All</option>
+            <option value="new">New queue</option>
+            <option value="due">Due</option>
+            <option value="hard">Hard / weak</option>
+            <option value="mastered">Mastered</option>
+          </select>
+        </section>
+
+        <div id="wordList" class="word-list"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button data-nav="home" class="active" type="button">Home</button>
+      <button data-nav="review" type="button">Review</button>
+      <button data-nav="upload" type="button">Upload</button>
+      <button data-nav="wordlist" type="button">Words</button>
+    </nav>
+  </div>
+
+  <template id="statTemplate">
+    <div class="stat-card">
+      <span class="stat-label"></span>
+      <strong class="stat-value"></strong>
+    </div>
+  </template>
+
+  <script src="./app.js" type="module"></script>
+</body>
+</html>
